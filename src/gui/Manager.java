@@ -34,6 +34,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
@@ -42,9 +43,13 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.DefaultTableModel;
 
+import engine.CSVCheckEngine;
+import engine.RowNumberTable;
+
 public class Manager extends JFrame implements WindowListener, ActionListener, ItemListener, PopupMenuListener {
 
 	private static final long serialVersionUID = 1078660512871634148L;
+	
 	private JPanel mainPanel;
 	private JPanel filesPanel;
 	private JPanel editorPanel;
@@ -73,6 +78,9 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	private JButton refreshButton;
 	private JLabel spacerlabel;
 	private JButton discardButton;
+	
+	private String[] allCommands = {"DRIVE", "ROTATE", "WAIT", "STOP", "RESET_GYRO"};
+	private String[] argumentTypes = {CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE};
 	
 	private File routinesFolder = new File(System.getProperty("user.home") + "/Desktop/Autonomous/"); //folder with CSV routines
 	private File deleteBackupsFolder = new File(System.getProperty("user.home") + "/Desktop/Autonomous/Backup/"); // Folder to move to when deleted
@@ -177,6 +185,11 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		table.setPreferredScrollableViewportSize(new Dimension(750, 350));
 		tableScrollPane.setViewportView(table);
 		
+		JTable rowTable = new RowNumberTable(table);
+		tableScrollPane.setRowHeaderView(rowTable);
+		tableScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER,
+		    rowTable.getTableHeader());
+		
 		//Panel for table action buttons
 		tableButtons = new JPanel();
 		tablePanel.add(tableButtons, BorderLayout.EAST);
@@ -209,7 +222,6 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		
 		//test the file (Not working at all)
 		testButton = new JButton("Save and Check");
-		testButton.setEnabled(false);
 		buttonsPanel.add(testButton);
 		
 		//Show built in help
@@ -891,7 +903,69 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	
 	private void checkCSV(){
 		
-		//TODO check
+		CSVCheckEngine checker = new CSVCheckEngine(allCommands, argumentTypes);
+		
+		try{
+			
+			String errorData = checker.checkFile(new File(routinesFolder.getAbsolutePath() + "/" + fileSelector.getSelectedItem().toString() + ".csv"));
+			
+			if(errorData.isEmpty()){
+				
+				//Message Dialog
+				final JDialog dialog = new JDialog();
+				JButton okBtn = new JButton("OK");
+				dialog.getContentPane().setLayout(new BorderLayout());
+				dialog.getContentPane().add("Center", new JLabel("File OK."));
+				dialog.getContentPane().add("South", okBtn);
+				dialog.setAlwaysOnTop(true);
+				dialog.pack();
+				dialog.setTitle("File Check");
+				dialog.setLocationRelativeTo(null);
+				dialog.setVisible(true);
+				dialog.requestFocus();
+				okBtn.addActionListener(new ActionListener(){
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						
+						dialog.dispose();
+						
+					}
+					
+				});
+				
+			}else{
+				
+				//Message Dialog
+				final JDialog dialog = new JDialog();
+				JButton okBtn = new JButton("OK");
+				dialog.getContentPane().setLayout(new BorderLayout());
+				dialog.getContentPane().add("Center", new JScrollPane(new JTextArea("Errors Found in File:\n\n" + errorData)));
+				dialog.getContentPane().add("South", okBtn);
+				dialog.setAlwaysOnTop(true);
+				dialog.pack();
+				dialog.setTitle("File Check");
+				dialog.setLocationRelativeTo(null);
+				dialog.setVisible(true);
+				dialog.requestFocus();
+				okBtn.addActionListener(new ActionListener(){
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						
+						dialog.dispose();
+						
+					}
+					
+				});
+				
+			}
+		
+		}catch(Exception e){
+			
+			
+			
+		}
 		
 	}
 	
@@ -902,6 +976,9 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	}
 	
 	private void saveToCSV(){
+		
+		table.clearSelection();
+		table.getSelectionModel().clearSelection();
 		
 		try{
 			
@@ -1042,14 +1119,14 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	    @Override
 	    public void clearSelection() {
 	    	
-	    	
+	    	super.clearSelection();
 	    	
 	    }
 
 	    @Override
 	    public void removeSelectionInterval(int index0, int index1) {
 	    	
-	    	
+	    	super.removeSelectionInterval(index0, index1);
 	    	
 	    }
 
