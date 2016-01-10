@@ -38,9 +38,11 @@ import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.table.DefaultTableModel;
 
-public class Manager extends JFrame implements WindowListener, ActionListener, ItemListener {
+public class Manager extends JFrame implements WindowListener, ActionListener, ItemListener, PopupMenuListener {
 
 	private static final long serialVersionUID = 1078660512871634148L;
 	private JPanel mainPanel;
@@ -68,131 +70,171 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	private JButton tableUpButton;
 	private JButton tableDownButton;
 	private JButton tableDeleteButton;
-	
-	private File routinesFolder = new File(System.getProperty("user.home") + "/Desktop/Autonomous/");
-	private File deleteBackupsFolder = new File(System.getProperty("user.home") + "/Desktop/Autonomous/Backup/");
-	private File autoBackupFolder = new File(System.getProperty("user.home") + "/Autonomous-BAK/");
 	private JButton refreshButton;
 	private JLabel spacerlabel;
+	private JButton discardButton;
 	
-	private String lastFileSelected = "";
+	private File routinesFolder = new File(System.getProperty("user.home") + "/Desktop/Autonomous/"); //folder with CSV routines
+	private File deleteBackupsFolder = new File(System.getProperty("user.home") + "/Desktop/Autonomous/Backup/"); // Folder to move to when deleted
+	private File autoBackupFolder = new File(System.getProperty("user.home") + "/Autonomous-BAK/"); //Folder that all scripts are backed up to on run and on close  WARNING may not work 100% correctly
 	
+	private String lastFileSelected = "";  //Stores the name of the previously selected file if the refresh button is pressed
+	
+	
+	//Build the UI (done with eclipse windowbuilder)
 	public Manager(){
-		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
+		//Use window listener to show a dialog before the frame is closed
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.addWindowListener(this);
 		
+		//add components
+		
+		//main panel (used to avoid using frame.getContentPane())
 		mainPanel = new JPanel();
 		getContentPane().add(mainPanel, BorderLayout.CENTER);
 		mainPanel.setLayout(new BorderLayout(0, 0));
 		
+		//Top panel with all file management tasks
 		filesPanel = new JPanel();
 		filesPanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "Scripts", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		mainPanel.add(filesPanel, BorderLayout.NORTH);
 		filesPanel.setLayout(new BorderLayout(0, 0));
 		
+		//File selector drop-down
 		fileSelector = new JComboBox<String>();
+		fileSelector.addPopupMenuListener(this);
 		filesPanel.add(fileSelector, BorderLayout.CENTER);
 		
+		//Holds all file management buttons
 		fileButtonsPanel = new JPanel();
 		filesPanel.add(fileButtonsPanel, BorderLayout.EAST);
 		fileButtonsPanel.setLayout(new GridLayout(0, 5, 0, 0));
 		
+		//Refresh the list of files
 		refreshButton = new JButton("Refresh");
 		fileButtonsPanel.add(refreshButton);
 		
+		//Separate refresh and the other buttons
 		spacerlabel = new JLabel("");
 		fileButtonsPanel.add(spacerlabel);
 		
+		//Create new File
 		newFileButton = new JButton("New");
 		fileButtonsPanel.add(newFileButton);
 		
+		//Rename a file
 		renameFileButton = new JButton("Rename");
 		fileButtonsPanel.add(renameFileButton);
 		
+		//Delete(Backup) a file
 		deleteFileButton = new JButton("Delete");
 		fileButtonsPanel.add(deleteFileButton);
 		
+		//Panel for table and commands
 		editorPanel = new JPanel();
 		mainPanel.add(editorPanel, BorderLayout.CENTER);
 		editorPanel.setLayout(new BorderLayout(0, 0));
 		
+		//Panel for the command buttons
 		commandsPanel = new JPanel();
 		commandsPanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "Pallete", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		editorPanel.add(commandsPanel, BorderLayout.WEST);
 		commandsPanel.setLayout(new GridLayout(0, 1, 0, 0));
 		
+		//Drive command
 		commandDriveButton = new JButton("DRIVE");
 		commandsPanel.add(commandDriveButton);
 		
+		//Rotate command
 		commandRotateButton = new JButton("ROTATE");
 		commandsPanel.add(commandRotateButton);
 		
+		//Wait command
 		commandWaitButton = new JButton("WAIT");
 		commandsPanel.add(commandWaitButton);
 		
+		//Stop Command
 		commandStopButton = new JButton("STOP");
 		commandsPanel.add(commandStopButton);
 		
+		//Reset Gyro command
 		commandResetgyroButton = new JButton("RESET_GYRO");
 		commandsPanel.add(commandResetgyroButton);
 		
+		//Panel for table to show CSV data
 		tablePanel = new JPanel();
 		tablePanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "Script", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		editorPanel.add(tablePanel, BorderLayout.CENTER);
 		tablePanel.setLayout(new BorderLayout(0, 0));
 		
+		//Make table scrollable
 		tableScrollPane = new JScrollPane();
 		tablePanel.add(tableScrollPane, BorderLayout.CENTER);
 		
+		//Table to show data
 		table = new JTable();
 		table.setPreferredScrollableViewportSize(new Dimension(750, 350));
 		tableScrollPane.setViewportView(table);
 		
+		//Panel for table action buttons
 		tableButtons = new JPanel();
 		tablePanel.add(tableButtons, BorderLayout.EAST);
 		tableButtons.setLayout(new GridLayout(3, 1, 0, 0));
 		
+		//Move Row Up
 		tableUpButton = new JButton("Up");
 		tableButtons.add(tableUpButton);
 		
+		//Move row down
 		tableDownButton = new JButton("Down");
 		tableButtons.add(tableDownButton);
 		
+		//Delete row
 		tableDeleteButton = new JButton("Delete");
 		tableButtons.add(tableDeleteButton);
 		
+		//Panel for buttons on bottom of window
 		buttonsPanel = new JPanel();
 		mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
-		buttonsPanel.setLayout(new GridLayout(0, 3, 0, 0));
+		buttonsPanel.setLayout(new GridLayout(0, 4, 0, 0));
 		
+		//Save current file
 		saveButton = new JButton("Save");
 		buttonsPanel.add(saveButton);
 		
+		//discard changes
+		discardButton = new JButton("Discard all Changes");
+		buttonsPanel.add(discardButton);
+		
+		//test the file (Not working at all)
 		testButton = new JButton("Save and Check");
 		testButton.setEnabled(false);
 		buttonsPanel.add(testButton);
 		
+		//Show built in help
 		helpButton = new JButton("Help");
 		helpButton.setEnabled(false);
 		buttonsPanel.add(helpButton);
 		
+		//watch for when the user changes the file
 		fileSelector.addItemListener(this);
 		
-		setupTable();
-		scanFiles();
-		setupButtons();
+		setupTable(); //Create table columns and properties
+		scanFiles(); //Get a list of files
+		setupButtons(); //add the action listeners
 		
-		lastFileSelected = (String) fileSelector.getSelectedItem();
+		lastFileSelected = (String) fileSelector.getSelectedItem(); //keep track of the selected file
 						
 	}
 	
+	//Create columns and set properties
 	private void setupTable(){
 		
 		DefaultTableModel model = new DefaultTableModel(){
 			
 			private static final long serialVersionUID = 4835831320207780958L;
-
+			//Only argument is editable
 			@Override
 			public boolean isCellEditable(int row, int column) {
 				
@@ -212,24 +254,28 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		
 		table.setModel(model);
 		
+		//add three columns
 	    model.addColumn("Command");
 	    model.addColumn("Argument");
 	    model.addColumn("Argument In:");
 	    
-	    table.getTableHeader().setFont( new Font( "Arial" , Font.BOLD, 15 ));
-	    table.getColumnModel().getColumn(0).setPreferredWidth(300);
-	    table.getColumnModel().getColumn(1).setPreferredWidth(300);
-	    table.getColumnModel().getColumn(2).setPreferredWidth(150);
+	    //Table style
+	    table.getTableHeader().setFont( new Font( "Arial" , Font.BOLD, 15 )); //Bold column headers
+	    table.getColumnModel().getColumn(0).setPreferredWidth(300); //width
+	    table.getColumnModel().getColumn(1).setPreferredWidth(300); //width
+	    table.getColumnModel().getColumn(2).setPreferredWidth(150); //width
 	    
-	    table.getTableHeader().setReorderingAllowed(false);
-	    table.getTableHeader().setResizingAllowed(false);
+	    table.getTableHeader().setReorderingAllowed(false); //User cant drag columns
+	    table.getTableHeader().setResizingAllowed(false); //user cant resize columns
 	    
-	    table.setSelectionModel(new ForcedListSelectionModel());
+	    table.setSelectionModel(new ForcedListSelectionModel()); //only select one row at a time
 	    	    		
 	}
 	
+	//Create a list of routine files
 	private void scanFiles(){
 		
+		//Make sure folders exists
 		if(!routinesFolder.exists()){
 			
 			routinesFolder.mkdirs();
@@ -248,8 +294,9 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 		}
 		
-		File[] files = routinesFolder.listFiles();
+		File[] files = routinesFolder.listFiles(); //Get a list of files
 		
+		//Auto backup
 		for(File file : files){
 			
 			try {
@@ -274,13 +321,13 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 		}
 		
-		String[] fileNames = routinesFolder.list();
+		String[] fileNames = routinesFolder.list(); //list file names
 		
 		for(String name : fileNames){
 			
 			if(name.endsWith(".csv")){
 				
-				fileSelector.addItem(name.substring(0, name.lastIndexOf(".csv")));
+				fileSelector.addItem(name.substring(0, name.lastIndexOf(".csv"))); //Add name without .csv
 				
 			}
 			
@@ -290,10 +337,12 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		
 	}
 	
+	//scan files by refresh button (need to clear combobox and table)
 	public void rescanFiles(){
 		
-		String currentlySelected = (String) fileSelector.getSelectedItem();
+		String currentlySelected = (String) fileSelector.getSelectedItem(); //Get currently selected name
 		
+		//Make sure folders exist (redundant)
 		if(!routinesFolder.exists()){
 			
 			routinesFolder.mkdirs();
@@ -312,6 +361,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 		}
 		
+		//Backup Files
 		File[] files = routinesFolder.listFiles();
 		
 		for(File file : files){
@@ -338,8 +388,9 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 		}
 		
-		String[] fileNames = routinesFolder.list();
+		String[] fileNames = routinesFolder.list(); //List file Names
 		
+		//Clear Drop-down Items
 		fileSelector.removeAllItems();
 		fileSelector.repaint();
 		fileSelector.revalidate();
@@ -348,12 +399,13 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 			if(name.endsWith(".csv")){
 				
-				fileSelector.addItem(name.substring(0, name.lastIndexOf(".csv")));
+				fileSelector.addItem(name.substring(0, name.lastIndexOf(".csv"))); //Add each csv file without .csv
 				
 			}
 			
 		}
 		
+		//Reselect currentlySelected if it exists
 		for(int i = 0; i < fileSelector.getItemCount(); i++){
 			
 			if(((String) fileSelector.getItemAt(i)).equals(currentlySelected)){
@@ -364,17 +416,20 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 		}
 		
-		if(!((String) fileSelector.getSelectedItem()).equals(currentlySelected)){
+		//Create file and select if it does not exist
+		if(!currentlySelected.equals(fileSelector.getSelectedItem().toString())){
 			
-			DefaultTableModel model = (DefaultTableModel) table.getModel();
-			
-			for (int i = model.getRowCount() - 1; i >= 0; i--) {
-		    	
-		        model.removeRow(i);
-		    
-		    }
-			
-			table.repaint();
+			try{
+				
+				File file = new File(routinesFolder.getAbsolutePath() + "/" + currentlySelected + ".csv");
+				file.createNewFile();
+				rescanFiles(currentlySelected);
+				
+			}catch(Exception e){
+				
+				
+				
+			}
 			
 		}
 		
@@ -383,8 +438,9 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	
 	public void rescanFiles(String toSelect){
 		
-		String currentlySelected = toSelect;
+		String currentlySelected = toSelect; //Which file to select
 		
+		//Create directories (Redundant)
 		if(!routinesFolder.exists()){
 			
 			routinesFolder.mkdirs();
@@ -403,6 +459,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 		}
 		
+		//Auto-Backup
 		File[] files = routinesFolder.listFiles();
 		
 		for(File file : files){
@@ -429,8 +486,9 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 		}
 		
-		String[] fileNames = routinesFolder.list();
+		String[] fileNames = routinesFolder.list(); //List all file names
 		
+		//Clear drop-down
 		fileSelector.removeAllItems();
 		fileSelector.repaint();
 		fileSelector.revalidate();
@@ -439,12 +497,13 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 			if(name.endsWith(".csv")){
 				
-				fileSelector.addItem(name.substring(0, name.lastIndexOf(".csv")));
+				fileSelector.addItem(name.substring(0, name.lastIndexOf(".csv"))); //Add all csv files without .csv
 				
 			}
 			
 		}
 		
+		//Select the file
 		for(int i = 0; i < fileSelector.getItemCount(); i++){
 			
 			if(((String) fileSelector.getItemAt(i)).equals(currentlySelected)){
@@ -455,22 +514,26 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 		}
 		
-		if(!((String) fileSelector.getSelectedItem()).equals(currentlySelected)){
-			
-			DefaultTableModel model = (DefaultTableModel) table.getModel();
-			
-			for (int i = model.getRowCount() - 1; i >= 0; i--) {
-		    	
-		        model.removeRow(i);
-		    
-		    }
-			
-			table.repaint();
-			
+		//Create file and select if it does not exist
+		if(!currentlySelected.equals(fileSelector.getSelectedItem().toString())){
+					
+			try{
+						
+				File file = new File(routinesFolder.getAbsolutePath() + "/" + currentlySelected + ".csv");
+				file.createNewFile();
+				rescanFiles(currentlySelected);
+						
+			}catch(Exception e){
+					
+					
+					
+			}
+					
 		}
 		
 	}
 	
+	//Add action listeners
 	private void setupButtons(){
 		
 		deleteFileButton.addActionListener(this);
@@ -491,6 +554,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		saveButton.addActionListener(this);
 		testButton.addActionListener(this);
 		helpButton.addActionListener(this);
+		discardButton.addActionListener(this);
 		
 	}
 	
@@ -498,7 +562,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		
 		try{
 			
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); //Set theme (looks better on windows)
 			
 		}catch(Exception e){
 			
@@ -506,10 +570,11 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 		}
 		
-		Manager manager = new Manager();
+		Manager manager = new Manager(); //create the manager
 		
-		try{			
-			manager.setIconImage(ImageIO.read(new File("./img/icon.png")));
+		try{	
+			
+			manager.setIconImage(ImageIO.read(new File("./img/icon.png"))); //Set the icon
 			
 		}catch(Exception e){
 			
@@ -517,19 +582,21 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 		}
 		
-		manager.pack();
-		manager.setTitle("Autonomous Routine Manager");
-		manager.setLocationRelativeTo(null);
-		manager.setVisible(true);
+		manager.pack(); //Size only as big as it needs to be
+		manager.setTitle("Autonomous Routine Manager"); //Set title for window
+		manager.setLocationRelativeTo(null); //Center
+		manager.setVisible(true); //Make window visible
 		
 	}
 
+	//Window Listener functions	(Window closed)
 	public void windowActivated(WindowEvent arg0) {}
 
 	public void windowClosed(WindowEvent arg0) {}
 
 	public void windowClosing(WindowEvent arg0) {
 		
+		//Setup Dialog
 		final JDialog dialog = new JDialog();
 		JButton yesBtn = new JButton("Yes");
 		JButton noBtn = new JButton("No");
@@ -547,6 +614,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		dialog.setVisible(true);
 		dialog.requestFocus();
 		
+		//If yes pressed
 		yesBtn.addActionListener(new ActionListener(){
 			
 			public void actionPerformed(ActionEvent e){
@@ -558,6 +626,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 		});
 		
+		//If no pressed
 		noBtn.addActionListener(new ActionListener(){
 			
 			public void actionPerformed(ActionEvent e){
@@ -568,6 +637,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 		});
 		
+		//backup when the dialog closes itself (dialog.dispose();)
 		dialog.addWindowListener(new WindowListener(){
 
 			@Override
@@ -635,12 +705,15 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 
 	public void windowOpened(WindowEvent arg0) {}
 	
+	//ActionListener (Button Pressed)
+	@Override
 	public void actionPerformed(ActionEvent e){
 		
-		Object src = e.getSource();
+		Object src = e.getSource(); //Get pressed item
 		
-		if(src == deleteFileButton){
+		if(src == deleteFileButton){ //if delete file
 			
+			//Move to bakcups folder, but add time stamp to the name
 			try {
 				
 				File srcFile = new File(routinesFolder.getAbsolutePath() + "/" + ((String)fileSelector.getSelectedItem()) + ".csv");
@@ -668,50 +741,56 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 				
 			}
 			
-		}else if(src == newFileButton){
+		}else if(src == newFileButton){ //If new File
 			
-			new NewRoutineDialog(this);
+			new NewRoutineDialog(this); //Show New File Dialog
 				
-		}else if(src == refreshButton){
+		}else if(src == refreshButton){ //If refresh
 			
-			rescanFiles();
+			rescanFiles(); //reload all files
 			
-		}else if(src == renameFileButton){
+		}else if(src == renameFileButton){ //If rename
 			
-			new RenameRoutineDialog(this, ((String) fileSelector.getSelectedItem()));
+			new RenameRoutineDialog(this, ((String) fileSelector.getSelectedItem())); // Rename dialog
 			
-		}else if(src == commandDriveButton){
+		}else if(src == commandDriveButton){ //If drive command
 			
+			//Add table row with drive command
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			
 			model.addRow(new String[]{"DRIVE", "6", "Inches"});
 			
-		}else if(src == commandRotateButton){
+		}else if(src == commandRotateButton){ //If rotate command
 			
+			//Add table row with rotate
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			
 			model.addRow(new String[]{"ROTATE", "90", "Degrees"});
 			
-		}else if(src == commandWaitButton){
+		}else if(src == commandWaitButton){ //If wait command
 			
+			//Add table row with wait
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			
 			model.addRow(new String[]{"WAIT", "5", "Seconds"});
 			
-		}else if(src == commandStopButton){
+		}else if(src == commandStopButton){ //If stop command
 			
+			//Add table row with stop
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			
 			model.addRow(new String[]{"STOP", "", "None"});
 			
-		}else if(src == commandResetgyroButton){
+		}else if(src == commandResetgyroButton){ //If reset gyro command
 			
+			//Add table row with reset gyro
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			
 			model.addRow(new String[]{"RESET_GYRO", "", "NONE"});
 			
-		}else if(src == tableUpButton){
+		}else if(src == tableUpButton){ //If up
 			
+			//Move row up
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			
 			int i = table.getSelectedRow();
@@ -720,8 +799,9 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 			table.setRowSelectionInterval(i - 1, i - 1);
 			
-		}else if(src == tableDownButton){
+		}else if(src == tableDownButton){ //If down
 			
+			//Move row down
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			
 			int i = table.getSelectedRow();
@@ -730,8 +810,9 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 			table.setRowSelectionInterval(i + 1, i + 1);
 			
-		}else if(src == tableDeleteButton){
+		}else if(src == tableDeleteButton){ //if delete
 			
+			//Add row for delete
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			
 			int i = table.getSelectedRow();
@@ -740,9 +821,60 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 			table.setRowSelectionInterval(i - 1, i - 1);
 			
-		}else if(src == saveButton){
+		}else if(src == saveButton){ //if save
 			
-			saveToCSV();
+			saveToCSV(); //Save
+			
+		}else if (src == discardButton){ //If discard
+			
+			//comfirm dialog
+			final JDialog dialog = new JDialog();
+			JButton yesBtn = new JButton("Yes");
+			JButton noBtn = new JButton("No");
+			JPanel buttons = new JPanel();
+			buttons.setLayout(new GridLayout(1, 2));
+			buttons.add(yesBtn);
+			buttons.add(noBtn);
+			dialog.getContentPane().setLayout(new BorderLayout());
+			dialog.getContentPane().add("Center", new JLabel("Discard all changes made to this file? WARNING:THIS CAN NOT BE UNDONE!"));
+			dialog.getContentPane().add("South", buttons);
+			dialog.setAlwaysOnTop(true);
+			dialog.pack();
+			dialog.setTitle("Discard?");
+			dialog.setLocationRelativeTo(null);
+			dialog.setVisible(true);
+			dialog.requestFocus();
+			
+			yesBtn.addActionListener(new ActionListener(){
+				
+				public void actionPerformed(ActionEvent e){
+					
+					//Clear table
+					DefaultTableModel model = (DefaultTableModel) table.getModel();
+	    			   
+	    			   for (int i = model.getRowCount() - 1; i >= 0; i--) {
+	    			   	
+	    				   model.removeRow(i);
+	    			    
+	    			   }
+	    			    
+	    			   loadFromCSV(); //reload the file
+	    			   
+	    			   dialog.dispose();
+					
+				}
+				
+			});
+			
+			noBtn.addActionListener(new ActionListener(){
+				
+				public void actionPerformed(ActionEvent e){
+					
+					dialog.dispose();
+					
+				}
+				
+			});
 			
 		}else if(src == testButton){
 			
@@ -773,18 +905,19 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		
 		try{
 			
-			String fileName = (String) fileSelector.getSelectedItem();
+			String fileName = (String) fileSelector.getSelectedItem(); //Get file name
 			
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			
-			File outFile = new File(routinesFolder.getAbsolutePath() + "/" + fileName + ".csv");
-						
-			outFile.delete();
+			File outFile = new File(routinesFolder.getAbsolutePath() + "/" + fileName + ".csv"); //Create file
 			
+			//Clear the file
+			outFile.delete(); 			
 			outFile.createNewFile();
 			
 			BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
 			
+			//Write data to the file from the table
 			for(int row = 0; row < model.getRowCount(); row++){
 				
 				for(int column = 0; column < model.getColumnCount(); column++){
@@ -821,27 +954,29 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		
 		try{
 			
-			String fileName = fileSelector.getSelectedItem().toString();
+			String fileName = fileSelector.getSelectedItem().toString(); //get file name
 			
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			
-			File inFile = new File(routinesFolder.getAbsolutePath() + "/" + fileName + ".csv");
+			File inFile = new File(routinesFolder.getAbsolutePath() + "/" + fileName + ".csv"); //create file
 			
 			BufferedReader reader = new BufferedReader(new FileReader(inFile));
 			
 			ArrayList<String> lines = new ArrayList<String>();
 			
+			//Read file by lines into ArrayList
 			while(reader.ready()){
 				
 				lines.add(reader.readLine());
 				
 			}
 			
+			//Separate the lines by ','s
 			for(int row = 0; row < lines.size(); row++){
 				
 				String[] columns = lines.get(row).split(",");
 				
-				model.addRow(columns);
+				model.addRow(columns); //Add row from array of strings
 				
 			}
 			
@@ -850,25 +985,27 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 		}catch(Exception e){
 			
-			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			
 			
 		}
 		
 	}
 	
+	//ItemStateChangedListener (When drop-down changed)
 	@Override
     public void itemStateChanged(ItemEvent e) {
 		
 		Object src = e.getSource();
 		
-       if(src == fileSelector){
+       if(src == fileSelector){ //If file selector
     	   
-    	   if (e.getStateChange() == ItemEvent.SELECTED) {
+    	   if (e.getStateChange() == ItemEvent.SELECTED) { //if something selected
         	   
     		   String newItem = (String) fileSelector.getSelectedItem();
     		   
-    		   if(!newItem.equals(lastFileSelected)){
-    			       			   
+    		   if(!newItem.equals(lastFileSelected)){ //if it is not the same
+    			   
+    			   //Clear the table
     			   DefaultTableModel model = (DefaultTableModel) table.getModel();
     			   
     			   for (int i = model.getRowCount() - 1; i >= 0; i--) {
@@ -876,9 +1013,11 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
     				   model.removeRow(i);
     			    
     			   }
-    			    
+    			   
+    			   //load the data
     			   loadFromCSV();
-    			    
+    			   
+    			   //change last file
     			   lastFileSelected = newItem;    				
     			   
     		   }
@@ -889,6 +1028,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
        
     }  
 	
+	//Allow only one row to be selected at a time
 	public class ForcedListSelectionModel extends DefaultListSelectionModel {
 
 		private static final long serialVersionUID = -7073835059132006928L;
@@ -914,5 +1054,20 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	    }
 
 	}
+	
+	
+	//Listen for drop-down opened
+	@Override
+	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		
+		saveToCSV(); //save before pop-up is visible
+		
+	}
+
+	@Override
+	public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
+
+	@Override
+	public void popupMenuCanceled(PopupMenuEvent e) {}
 	
 }
