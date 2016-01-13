@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -226,7 +227,6 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		
 		//Show built in help
 		helpButton = new JButton("Help");
-		helpButton.setEnabled(false);
 		buttonsPanel.add(helpButton);
 		
 		//watch for when the user changes the file
@@ -446,6 +446,103 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		}
 		
 	}
+	
+	//scan files after a delete
+		public void deleteRescanFiles(){
+			
+			String currentlySelected = (String) fileSelector.getSelectedItem(); //Get currently selected name
+			
+			//Make sure folders exist (redundant)
+			if(!routinesFolder.exists()){
+				
+				routinesFolder.mkdirs();
+							
+			}
+			
+			if(!deleteBackupsFolder.exists()){
+				
+				deleteBackupsFolder.mkdirs();
+				
+			}
+
+			if(!autoBackupFolder.exists()){
+				
+				autoBackupFolder.mkdirs();
+				
+			}
+			
+			//Backup Files
+			File[] files = routinesFolder.listFiles();
+			
+			for(File file : files){
+				
+				try {
+					
+					BufferedInputStream reader = new BufferedInputStream(new FileInputStream(file));
+					BufferedOutputStream writer = new BufferedOutputStream(new FileOutputStream(new File(autoBackupFolder.getAbsolutePath() + "/" + file.getName())));
+					
+					while(reader.available() > 0){
+						
+						writer.write(reader.read());
+						
+					}
+					
+					reader.close();
+					writer.close();
+					
+				} catch (Exception e) {
+					
+
+					
+				}
+				
+			}
+			
+			String[] fileNames = routinesFolder.list(); //List file Names
+			
+			//Clear Drop-down Items
+			fileSelector.removeAllItems();
+			fileSelector.repaint();
+			fileSelector.revalidate();
+			
+			for(String name : fileNames){
+				
+				if(name.endsWith(".csv")){
+					
+					fileSelector.addItem(name.substring(0, name.lastIndexOf(".csv"))); //Add each csv file without .csv
+					
+				}
+				
+			}
+			
+			//Reselect currentlySelected if it exists
+			for(int i = 0; i < fileSelector.getItemCount(); i++){
+				
+				if(((String) fileSelector.getItemAt(i)).equals(currentlySelected)){
+					
+					fileSelector.setSelectedIndex(i);
+					
+				}
+				
+			}
+			
+			//Clear table if it doesn't exist anymore
+			if(!currentlySelected.equals(fileSelector.getSelectedItem().toString())){
+				
+			   //Clear the table
+ 			   DefaultTableModel model = (DefaultTableModel) table.getModel();
+ 			   
+ 			   for (int i = model.getRowCount() - 1; i >= 0; i--) {
+ 			   	
+ 				   model.removeRow(i);
+ 			    
+ 			   }
+				
+			}
+			
+			loadFromCSV();
+			
+		}
 	
 	
 	public void rescanFiles(String toSelect){
@@ -745,7 +842,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 				
 				srcFile.delete();
 				
-				rescanFiles();
+				deleteRescanFiles();
 				
 			} catch (Exception ex) {
 				
@@ -971,57 +1068,69 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	
 	private void showHelp(){
 		
-		//TODO show help
+		try{
+			
+			Desktop.getDesktop().browse(new File("html/help.html").toURI());
+		
+		}catch(Exception e){
+			
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			
+		}
 		
 	}
 	
 	private void saveToCSV(){
 		
-		table.clearSelection();
-		table.getSelectionModel().clearSelection();
-		
-		try{
+		if(!fileSelector.getSelectedItem().toString().equals("null")){
 			
-			String fileName = (String) fileSelector.getSelectedItem(); //Get file name
+			table.clearSelection();
+			table.getSelectionModel().clearSelection();
 			
-			DefaultTableModel model = (DefaultTableModel) table.getModel();
-			
-			File outFile = new File(routinesFolder.getAbsolutePath() + "/" + fileName + ".csv"); //Create file
-			
-			//Clear the file
-			outFile.delete(); 			
-			outFile.createNewFile();
-			
-			BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
-			
-			//Write data to the file from the table
-			for(int row = 0; row < model.getRowCount(); row++){
+			try{
 				
-				for(int column = 0; column < model.getColumnCount(); column++){
+				String fileName = (String) fileSelector.getSelectedItem(); //Get file name
+				
+				DefaultTableModel model = (DefaultTableModel) table.getModel();
+				
+				File outFile = new File(routinesFolder.getAbsolutePath() + "/" + fileName + ".csv"); //Create file
+				
+				//Clear the file
+				outFile.delete(); 			
+				outFile.createNewFile();
+				
+				BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
+				
+				//Write data to the file from the table
+				for(int row = 0; row < model.getRowCount(); row++){
 					
-					writer.write(model.getValueAt(row, column).toString());
-					
-					if(column != model.getColumnCount() - 1){
+					for(int column = 0; column < model.getColumnCount(); column++){
 						
-						writer.write(",");
+						writer.write(model.getValueAt(row, column).toString());
+						
+						if(column != model.getColumnCount() - 1){
+							
+							writer.write(",");
+						
+						}
+						
+					}
 					
+					if(row != model.getRowCount() - 1){
+						
+						writer.newLine();
+						
 					}
 					
 				}
 				
-				if(row != model.getRowCount() - 1){
-					
-					writer.newLine();
-					
-				}
+				writer.close();
+				
+			}catch(Exception e){
+				
+				
 				
 			}
-			
-			writer.close();
-			
-		}catch(Exception e){
-			
-			
 			
 		}
 		
@@ -1137,7 +1246,8 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	@Override
 	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
 		
-		saveToCSV(); //save before pop-up is visible
+		if (!fileSelector.getSelectedItem().toString().equals("null"))
+			saveToCSV(); //save before pop-up is visible
 		
 	}
 

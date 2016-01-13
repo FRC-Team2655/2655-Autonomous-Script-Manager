@@ -91,7 +91,7 @@ public class NewRoutineDialog extends JDialog implements ActionListener {
 			
 			}catch(Exception ex){
 				
-
+				this.dispose();
 				
 			}
 			

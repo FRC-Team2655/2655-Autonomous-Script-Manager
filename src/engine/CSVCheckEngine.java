@@ -41,7 +41,7 @@ public class CSVCheckEngine {
 				dataString += "Line " + String.valueOf(row + 1) + ": Command Invalid!\n"; //Add error message
 				
 			if(!argumentCorrect)
-				dataString += "Line " + String.valueOf(row + 1) + ": Argument Invalid"; //Add error message
+				dataString += "Line " + String.valueOf(row + 1) + ": Argument Invalid\n"; //Add error message
 			
 		}
 		
