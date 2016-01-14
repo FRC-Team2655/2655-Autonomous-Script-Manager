@@ -6,6 +6,7 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -40,8 +41,12 @@ import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 import engine.CSVCheckEngine;
@@ -79,6 +84,8 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	private JButton refreshButton;
 	private JLabel spacerlabel;
 	private JButton discardButton;
+	
+	private static GyroSim gyroSim;
 	
 	private String[] allCommands = {"DRIVE", "ROTATE", "WAIT", "STOP", "RESET_GYRO"};
 	private String[] argumentTypes = {CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE};
@@ -169,6 +176,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		
 		//Reset Gyro command
 		commandResetgyroButton = new JButton("RESET_GYRO");
+		commandResetgyroButton.setEnabled(false);
 		commandsPanel.add(commandResetgyroButton);
 		
 		//Panel for table to show CSV data
@@ -237,7 +245,32 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		setupButtons(); //add the action listeners
 		
 		lastFileSelected = (String) fileSelector.getSelectedItem(); //keep track of the selected file
-						
+		
+		table.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				
+				rescanAngle();
+				
+			}
+			
+		});
+		
+		table.getModel().addTableModelListener(new TableModelListener() {
+			
+	        public void tableChanged(TableModelEvent e) {
+	        	
+	            if(e.getType() == TableModelEvent.UPDATE){
+	                
+	            	rescanAngle();
+	            	
+	            }
+	            
+	        }
+	        
+	    });
+								
 	}
 	
 	//Create columns and set properties
@@ -694,7 +727,14 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		manager.pack(); //Size only as big as it needs to be
 		manager.setTitle("Autonomous Routine Manager"); //Set title for window
 		manager.setLocationRelativeTo(null); //Center
+		Point location = manager.getLocation();
+		location.x -= 100;
+		manager.setLocation(location);
 		manager.setVisible(true); //Make window visible
+		
+		gyroSim = new GyroSim(manager.getHeight(), manager);
+				
+		manager.requestFocus();
 		
 	}
 
@@ -808,9 +848,17 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 
 	public void windowDeactivated(WindowEvent arg0) {}
 
-	public void windowDeiconified(WindowEvent arg0) {}
+	public void windowDeiconified(WindowEvent arg0) {
+		
+		gyroSim.setVisible(true);
+		
+	}
 
-	public void windowIconified(WindowEvent arg0) {}
+	public void windowIconified(WindowEvent arg0) {
+		
+		gyroSim.setVisible(false);
+		
+	}
 
 	public void windowOpened(WindowEvent arg0) {}
 	
@@ -868,6 +916,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			
 			model.addRow(new String[]{"DRIVE", "6", "Inches"});
+			table.clearSelection();
 			
 		}else if(src == commandRotateButton){ //If rotate command
 			
@@ -875,11 +924,15 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			
 			model.addRow(new String[]{"ROTATE", "90", "Degrees"});
+			table.clearSelection();
+			
+			rescanAngle();
 			
 		}else if(src == commandWaitButton){ //If wait command
 			
 			//Add table row with wait
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
+			table.clearSelection();
 			
 			model.addRow(new String[]{"WAIT", "5", "Seconds"});
 			
@@ -887,6 +940,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 			//Add table row with stop
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
+			table.clearSelection();
 			
 			model.addRow(new String[]{"STOP", "", "None"});
 			
@@ -894,6 +948,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 			//Add table row with reset gyro
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
+			table.clearSelection();
 			
 			model.addRow(new String[]{"RESET_GYRO", "", "NONE"});
 			
@@ -1256,5 +1311,33 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 
 	@Override
 	public void popupMenuCanceled(PopupMenuEvent e) {}
+	
+	private void rescanAngle(){
+		
+		int selectedRow = table.getSelectedRow();
+		boolean set = false;
+		
+		if(selectedRow == -1)
+			selectedRow = table.getRowCount() - 1;
+		
+		for(int i = selectedRow; i >= 0; i--){
+			
+			if(table.getModel().getValueAt(i, 0).toString().equals("ROTATE")){
+				
+				set = true;
+				gyroSim.setGyroAngle(Integer.parseInt(table.getModel().getValueAt(i, 1).toString()));
+				break;
+				
+			}
+			
+		}
+			
+		if(!set){
+			
+			gyroSim.setGyroAngle(0);
+			
+		}
+		
+	}
 	
 }
