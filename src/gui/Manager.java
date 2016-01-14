@@ -87,7 +87,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	
 	private static GyroSim gyroSim;
 	
-	private String[] allCommands = {"DRIVE", "ROTATE", "WAIT", "STOP", "RESET_GYRO"};
+	private String[] allCommands = {"DRIVE", "ROTATE_TO", "WAIT", "STOP", "RESET_GYRO"};
 	private String[] argumentTypes = {CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE};
 	
 	private File routinesFolder = new File(System.getProperty("user.home") + "/Desktop/Autonomous/"); //folder with CSV routines
@@ -163,7 +163,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		commandsPanel.add(commandDriveButton);
 		
 		//Rotate command
-		commandRotateButton = new JButton("ROTATE");
+		commandRotateButton = new JButton("ROTATE_TO");
 		commandsPanel.add(commandRotateButton);
 		
 		//Wait command
@@ -922,7 +922,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			//Add table row with rotate
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			
-			model.addRow(new String[]{"ROTATE", "90", "Degrees"});
+			model.addRow(new String[]{"ROTATE_TO", "90", "Degrees"});
 			table.clearSelection();
 			
 			rescanAngle();
@@ -1330,7 +1330,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 				
 				for(int j = i; j >= 0; j--){
 					
-					if(table.getModel().getValueAt(j, 0).toString().equals("ROTATE")){
+					if(table.getModel().getValueAt(j, 0).toString().equals("ROTATE_TO")){
 						
 						offset = Integer.parseInt(table.getModel().getValueAt(j, 1).toString());
 						break;
@@ -1347,7 +1347,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		
 		for(int i = selectedRow; i >= minHeight; i--){
 			
-			if(table.getModel().getValueAt(i, 0).toString().equals("ROTATE")){
+			if(table.getModel().getValueAt(i, 0).toString().equals("ROTATE_TO")){
 				
 				set = true;
 				gyroSim.setGyroAngle(Integer.parseInt(table.getModel().getValueAt(i, 1).toString()));
