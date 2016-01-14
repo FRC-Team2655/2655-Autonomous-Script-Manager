@@ -176,7 +176,6 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		
 		//Reset Gyro command
 		commandResetgyroButton = new JButton("RESET_GYRO");
-		commandResetgyroButton.setEnabled(false);
 		commandsPanel.add(commandResetgyroButton);
 		
 		//Panel for table to show CSV data
@@ -1315,12 +1314,38 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	private void rescanAngle(){
 		
 		int selectedRow = table.getSelectedRow();
+		int minHeight = 0;
 		boolean set = false;
 		
 		if(selectedRow == -1)
 			selectedRow = table.getRowCount() - 1;
 		
+		int offset = 0;
+		
 		for(int i = selectedRow; i >= 0; i--){
+			
+			if(table.getModel().getValueAt(i, 0).toString().equals("RESET_GYRO")){
+				
+				minHeight = i;
+				
+				for(int j = i; j >= 0; j--){
+					
+					if(table.getModel().getValueAt(j, 0).toString().equals("ROTATE")){
+						
+						offset = Integer.parseInt(table.getModel().getValueAt(j, 1).toString());
+						break;
+						
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+		gyroSim.setAngleOffset(offset);
+		
+		for(int i = selectedRow; i >= minHeight; i--){
 			
 			if(table.getModel().getValueAt(i, 0).toString().equals("ROTATE")){
 				

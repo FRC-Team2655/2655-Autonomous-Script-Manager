@@ -21,6 +21,8 @@ public class DrawGyroAnglePanel extends JPanel implements ComponentListener {
 	private int width;
 	private int height;
 	
+	private int angleOffset = 0;
+	
 	private int circleX;
 	private int circleY;
 	private int circleWidth;
@@ -68,7 +70,7 @@ public class DrawGyroAnglePanel extends JPanel implements ComponentListener {
 	private Shape getRotatedTriangle(int rotateDegrees){
 		
 		Polygon upTriangle = new Polygon(triangleX, triangleY, 3);
-		AffineTransform rotate = AffineTransform.getRotateInstance(Math.toRadians(rotateDegrees), circleCenter.getX(), circleCenter.getY());
+		AffineTransform rotate = AffineTransform.getRotateInstance(Math.toRadians(rotateDegrees + angleOffset), circleCenter.getX(), circleCenter.getY());
 		
 		return rotate.createTransformedShape(upTriangle);
 		
@@ -131,6 +133,12 @@ public class DrawGyroAnglePanel extends JPanel implements ComponentListener {
 		}
 		
 	}
+	
+	public int getAngle(){
+		
+		return currentDirection;
+		
+	}
 
 	@Override
 	public void componentResized(ComponentEvent e) {
@@ -149,6 +157,12 @@ public class DrawGyroAnglePanel extends JPanel implements ComponentListener {
 
 	@Override
 	public void componentHidden(ComponentEvent e) {}
+	
+	public void setOffset(int offset){
+		
+		angleOffset = Math.abs(offset);
+		
+	}
 
 
 }

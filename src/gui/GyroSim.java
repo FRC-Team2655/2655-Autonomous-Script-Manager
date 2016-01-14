@@ -59,5 +59,17 @@ public class GyroSim extends JDialog {
 		drawGyroAnglePanel.setAngle(angle);
 		
 	}
+	
+	public int getGyroAngle(){
+		
+		return drawGyroAnglePanel.getAngle();
+		
+	}
+	
+	public void setAngleOffset(int offset){
+		
+		drawGyroAnglePanel.setOffset(offset);
+		
+	}
 
 }
