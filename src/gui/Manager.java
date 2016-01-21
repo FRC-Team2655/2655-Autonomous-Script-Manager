@@ -1332,7 +1332,10 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 					
 					if(table.getModel().getValueAt(j, 0).toString().equals("ROTATE_TO")){
 						
+						set = true;
 						offset = Integer.parseInt(table.getModel().getValueAt(j, 1).toString());
+						gyroSim.setAngleOffset(offset);
+						gyroSim.setGyroAngle(0);
 						break;
 						
 					}
@@ -1343,11 +1346,9 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 		}
 		
-		gyroSim.setAngleOffset(offset);
-		
 		for(int i = selectedRow; i >= minHeight; i--){
 			
-			if(table.getModel().getValueAt(i, 0).toString().equals("ROTATE_TO")){
+			if(table.getModel().getValueAt(i, 0).toString().equals("ROTATE_TO") && !set){
 				
 				set = true;
 				gyroSim.setGyroAngle(Integer.parseInt(table.getModel().getValueAt(i, 1).toString()));
