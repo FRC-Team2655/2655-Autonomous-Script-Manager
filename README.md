@@ -7,8 +7,8 @@
 		<a href="https://github.com/FRC-Team2655/2016-Beta-Dashboard">https://github.com/FRC-Team2655/2016-Beta-Dashboard</a>
 		<h1>Running:</h1>
 		<h3>Download and run from zip file(Easy Recommended):</h3>
-		<a href="https://drive.google.com/file/d/0B-F_EouoF4FXS2YtMFpSVHk0LWc/view?usp=sharing">Built ZIP File</a>
-		<p>The zip has a JRE and bat scrip to run the JAR on windows (as the FRC Driver station software is windows only). You can run the jar on a Linux(with Java installed) or OSX system (open a terminal in the directory of the extracted zip) and type <code><pre>
+		<a href="https://drive.google.com/file/d/0B-F_EouoF4FXS2YtMFpSVHk0LWc/view?usp=sharing">Built ZIP File (May not always be newes)</a>
+		<p>The zip has a JRE and bat script to run the JAR on windows (as the FRC Driver station software is windows only). You can run the jar on a Linux(with Java installed) or OSX system (open a terminal in the directory of the extracted zip) and type <code><pre>
 java -jar ./Manager.jar</pre></code>In windows extract the zip and double click the start.bat file. The manager will run with the JRE with it comes with.</p>
 		<h3>In Eclipse(Intermediate):</h2>
 		<p>The repository is an eclipse project. To open it in eclipse <pre>
