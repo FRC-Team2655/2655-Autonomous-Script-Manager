@@ -22,6 +22,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -96,6 +98,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	
 	private String lastFileSelected = "";  //Stores the name of the previously selected file if the refresh button is pressed
 	
+	private boolean canSave = true;
 	
 	//Build the UI (done with eclipse windowbuilder)
 	public Manager(){
@@ -759,8 +762,17 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		dialog.pack();
 		dialog.setTitle("Save?");
 		dialog.setLocationRelativeTo(null);
-		dialog.setVisible(true);
 		dialog.requestFocus();
+		
+		if(canSave){
+			
+			dialog.setVisible(true);
+			
+		}else{
+			
+			System.exit(0);
+			
+		}
 		
 		//If yes pressed
 		yesBtn.addActionListener(new ActionListener(){
@@ -1136,53 +1148,57 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	
 	private void saveToCSV(){
 		
-		if(!fileSelector.getSelectedItem().toString().equals("null")){
+		if(canSave){
 			
-			table.clearSelection();
-			table.getSelectionModel().clearSelection();
-			
-			try{
+			if(!fileSelector.getSelectedItem().toString().equals("null")){
 				
-				String fileName = (String) fileSelector.getSelectedItem(); //Get file name
+				table.clearSelection();
+				table.getSelectionModel().clearSelection();
 				
-				DefaultTableModel model = (DefaultTableModel) table.getModel();
-				
-				File outFile = new File(routinesFolder.getAbsolutePath() + "/" + fileName + ".csv"); //Create file
-				
-				//Clear the file
-				outFile.delete(); 			
-				outFile.createNewFile();
-				
-				BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
-				
-				//Write data to the file from the table
-				for(int row = 0; row < model.getRowCount(); row++){
+				try{
 					
-					for(int column = 0; column < model.getColumnCount(); column++){
+					String fileName = (String) fileSelector.getSelectedItem(); //Get file name
+					
+					DefaultTableModel model = (DefaultTableModel) table.getModel();
+					
+					File outFile = new File(routinesFolder.getAbsolutePath() + "/" + fileName + ".csv"); //Create file
+					
+					//Clear the file
+					outFile.delete(); 			
+					outFile.createNewFile();
+					
+					BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
+					
+					//Write data to the file from the table
+					for(int row = 0; row < model.getRowCount(); row++){
 						
-						writer.write(model.getValueAt(row, column).toString());
-						
-						if(column != model.getColumnCount() - 1){
+						for(int column = 0; column < model.getColumnCount(); column++){
 							
-							writer.write(",");
+							writer.write(model.getValueAt(row, column).toString());
+							
+							if(column != model.getColumnCount() - 1){
+								
+								writer.write(",");
+							
+							}
+							
+						}
 						
+						if(row != model.getRowCount() - 1){
+							
+							writer.newLine();
+							
 						}
 						
 					}
 					
-					if(row != model.getRowCount() - 1){
-						
-						writer.newLine();
-						
-					}
+					writer.close();
+					
+				}catch(Exception e){
+					
+					
 					
 				}
-				
-				writer.close();
-				
-			}catch(Exception e){
-				
-				
 				
 			}
 			
@@ -1199,6 +1215,12 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			
 			File inFile = new File(routinesFolder.getAbsolutePath() + "/" + fileName + ".csv"); //create file
+			
+			if(!(Files.isWritable(inFile.toPath()))){
+				
+				throw new IOException();
+				
+			}
 			
 			BufferedReader reader = new BufferedReader(new FileReader(inFile));
 			
@@ -1222,10 +1244,39 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 			reader.close();
 					
+			saveButton.setEnabled(true);
+			testButton.setEnabled(true);
+			discardButton.setEnabled(true);
+			canSave = true;
 			
 		}catch(Exception e){
 			
+			final JDialog dialog = new JDialog();
+			JButton okBtn = new JButton("OK");
+			dialog.getContentPane().setLayout(new BorderLayout());
+			dialog.getContentPane().add("Center", new JLabel("File is not accessible. Make sure driver station is not running."));
+			dialog.getContentPane().add("South", okBtn);
+			dialog.setAlwaysOnTop(true);
+			dialog.pack();
+			dialog.setTitle("File Error");
+			dialog.setLocationRelativeTo(null);
+			dialog.setVisible(true);
+			dialog.requestFocus();
+			okBtn.addActionListener(new ActionListener(){
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+					dialog.dispose();
+					
+				}
+				
+			});
 			
+			saveButton.setEnabled(false);
+			testButton.setEnabled(false);
+			discardButton.setEnabled(false);
+			canSave = false;
 			
 		}
 		
