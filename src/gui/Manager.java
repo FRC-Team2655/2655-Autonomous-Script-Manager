@@ -99,6 +99,10 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	private String lastFileSelected = "";  //Stores the name of the previously selected file if the refresh button is pressed
 	
 	private boolean canSave = true;
+	private JButton commandBallDownButton;
+	private JButton commandBallUpButton;
+	private JButton commandBallOutButton;
+	private JButton commandBallStopButton;
 	
 	//Build the UI (done with eclipse windowbuilder)
 	public Manager(){
@@ -180,6 +184,18 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		//Reset Gyro command
 		commandResetgyroButton = new JButton("RESET_GYRO");
 		commandsPanel.add(commandResetgyroButton);
+		
+		commandBallDownButton = new JButton("BALL_INTAKE_DOWN");
+		commandsPanel.add(commandBallDownButton);
+		
+		commandBallUpButton = new JButton("BALL_INTAKE_UP");
+		commandsPanel.add(commandBallUpButton);
+		
+		commandBallOutButton = new JButton("BALL_OUT");
+		commandsPanel.add(commandBallOutButton);
+		
+		commandBallStopButton = new JButton("BALL_STOP");
+		commandsPanel.add(commandBallStopButton);
 		
 		//Panel for table to show CSV data
 		tablePanel = new JPanel();
@@ -690,6 +706,10 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		commandWaitButton.addActionListener(this);
 		commandStopButton.addActionListener(this);
 		commandResetgyroButton.addActionListener(this);
+		commandBallDownButton.addActionListener(this);
+		commandBallUpButton.addActionListener(this);
+		commandBallOutButton.addActionListener(this);
+		commandBallStopButton.addActionListener(this);
 		
 		tableUpButton.addActionListener(this);
 		tableDownButton.addActionListener(this);
@@ -961,9 +981,42 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			table.clearSelection();
 			
-			model.addRow(new String[]{"RESET_GYRO", "", "NONE"});
+			model.addRow(new String[]{"RESET_GYRO", "", "None"});
 			
-		}else if(src == tableUpButton){ //If up
+		}else if(src == commandBallDownButton){ //If ball down command
+			
+			//Add table row with ball down
+			DefaultTableModel model = (DefaultTableModel) table.getModel();
+			table.clearSelection();
+			
+			model.addRow(new String[]{"BALL_INTAKE_DOWN", "", "None"});
+			
+		}else if(src == commandBallUpButton){ //If ball up
+			
+			//Add table row with ball up
+			DefaultTableModel model = (DefaultTableModel) table.getModel();
+			table.clearSelection();
+			
+			model.addRow(new String[]{"BALL_INTAKE_UP", "", "None"});
+			
+		}else if(src == commandBallOutButton){ //If ball out
+			
+			//Add table row with ball out
+			DefaultTableModel model = (DefaultTableModel) table.getModel();
+			table.clearSelection();
+			
+			model.addRow(new String[]{"BALL_OUT", "", "None"});
+			
+		}else if(src == commandBallStopButton){ //If ball stop
+			
+			//Add table row with ball stop
+			DefaultTableModel model = (DefaultTableModel) table.getModel();
+			table.clearSelection();
+			
+			model.addRow(new String[]{"BALL_STOP", "", "None"});
+			
+		}
+		else if(src == tableUpButton){ //If up
 			
 			//Move row up
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
