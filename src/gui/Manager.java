@@ -89,8 +89,8 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	
 	private static GyroSim gyroSim;
 	
-	private String[] allCommands = {"DRIVE", "ROTATE_TO", "WAIT", "STOP", "RESET_GYRO"};
-	private String[] argumentTypes = {CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE};
+	private String[] allCommands = {"DRIVE", "ROTATE_TO", "WAIT", "STOP", "RESET_GYRO", "BALL_INTAKE_DOWN", "BALL_INTAKE_UP", "BALL_INTAKE_UP", "BALL_INTAKE_DOWN", "BALL_OUT", "BALL_STOP", "DEFENSE_DESTROYER_DOWN", "DEFENSE_DESTROYER_UP"};
+	private String[] argumentTypes = {CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE};
 	
 	private File routinesFolder = new File(System.getProperty("user.home") + "/Desktop/Autonomous/"); //folder with CSV routines
 	private File deleteBackupsFolder = new File(System.getProperty("user.home") + "/Desktop/Autonomous/Backup/"); // Folder to move to when deleted
