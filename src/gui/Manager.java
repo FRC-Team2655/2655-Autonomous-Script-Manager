@@ -103,6 +103,8 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	private JButton commandBallUpButton;
 	private JButton commandBallOutButton;
 	private JButton commandBallStopButton;
+	private JButton commandDefenseDownButton;
+	private JButton commandDefenseUpButton;
 	
 	//Build the UI (done with eclipse windowbuilder)
 	public Manager(){
@@ -196,6 +198,12 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		
 		commandBallStopButton = new JButton("BALL_STOP");
 		commandsPanel.add(commandBallStopButton);
+		
+		commandDefenseDownButton = new JButton("DEFENSE_DESTROYER_DOWN");
+		commandsPanel.add(commandDefenseDownButton);
+		
+		commandDefenseUpButton = new JButton("DEFENSE_DESTROYER_UP");
+		commandsPanel.add(commandDefenseUpButton);
 		
 		//Panel for table to show CSV data
 		tablePanel = new JPanel();
@@ -710,6 +718,8 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		commandBallUpButton.addActionListener(this);
 		commandBallOutButton.addActionListener(this);
 		commandBallStopButton.addActionListener(this);
+		commandDefenseDownButton.addActionListener(this);
+		commandDefenseUpButton.addActionListener(this);
 		
 		tableUpButton.addActionListener(this);
 		tableDownButton.addActionListener(this);
@@ -757,6 +767,10 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		gyroSim = new GyroSim(manager.getHeight(), manager);
 				
 		manager.requestFocus();
+		
+		gyroSim.setGyroAngle(0);
+		gyroSim.setAngleOffset(0);
+		gyroSim.update();
 		
 	}
 
@@ -1016,6 +1030,25 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			model.addRow(new String[]{"BALL_STOP", "", "None"});
 			
 		}
+		
+		else if(src == commandDefenseDownButton){ //If defense down
+			
+			//Add table row with defense down
+			DefaultTableModel model = (DefaultTableModel) table.getModel();
+			table.clearSelection();
+			
+			model.addRow(new String[]{"DEFENSE_DESTROYER_DOWN", "", "None"});
+			
+		}else if(src == commandDefenseUpButton){ //If defense up
+			
+			//Add table row with defense up
+			DefaultTableModel model = (DefaultTableModel) table.getModel();
+			table.clearSelection();
+			
+			model.addRow(new String[]{"DEFENSE_DESTROYER_UP", "", "None"});
+			
+		}
+		
 		else if(src == tableUpButton){ //If up
 			
 			//Move row up

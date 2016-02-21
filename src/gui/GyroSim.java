@@ -51,6 +51,8 @@ public class GyroSim extends JDialog {
 		this.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		this.setVisible(true);
 		
+		drawGyroAnglePanel.setAngle(0);
+		drawGyroAnglePanel.reset(0);
 		drawGyroAnglePanel.update();
 
 	}
@@ -72,6 +74,12 @@ public class GyroSim extends JDialog {
 	public void setAngleOffset(int offset){
 		
 		drawGyroAnglePanel.reset(offset);
+		drawGyroAnglePanel.update();
+		
+	}
+	
+	public void update(){
+		
 		drawGyroAnglePanel.update();
 		
 	}

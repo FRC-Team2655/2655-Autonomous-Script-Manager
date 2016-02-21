@@ -43,6 +43,8 @@ public class DrawGyroAnglePanel extends JPanel implements ComponentListener {
 		
 		this.setPreferredSize(new Dimension(200, 500));
 		
+		update();
+		
 	}
 	
 	@Override
