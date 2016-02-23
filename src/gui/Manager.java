@@ -1395,7 +1395,14 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
     			   loadFromCSV();
     			   
     			   //change last file
-    			   lastFileSelected = newItem;    				
+    			   lastFileSelected = newItem;
+    			   
+    			   if(gyroSim != null){
+    				   
+    				   gyroSim.setAngleOffset(0);
+        			   gyroSim.setGyroAngle(0);
+    				   
+    			   }
     			   
     		   }
     	          
