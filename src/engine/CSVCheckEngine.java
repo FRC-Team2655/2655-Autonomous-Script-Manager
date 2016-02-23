@@ -112,7 +112,7 @@ public class CSVCheckEngine {
 			
 			try{
 				
-				Integer.parseInt(argument);
+				Double.parseDouble(argument);
 				
 				isArgument = true;
 				
