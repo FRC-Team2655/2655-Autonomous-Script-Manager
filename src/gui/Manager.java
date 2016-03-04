@@ -71,7 +71,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	private JButton testButton;
 	private JPanel commandsPanel;
 	private JPanel tablePanel;
-	private JButton commandDriveButton;
+	private JButton commandDriveSlowButton;
 	private JButton commandRotateButton;
 	private JButton commandWaitButton;
 	private JButton commandStopButton;
@@ -89,8 +89,8 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	
 	private static GyroSim gyroSim;
 	
-	private String[] allCommands = {"DRIVE", "ROTATE_TO", "WAIT", "STOP", "RESET_GYRO", "BALL_INTAKE_DOWN", "BALL_INTAKE_UP", "BALL_INTAKE_UP", "BALL_INTAKE_DOWN", "BALL_OUT", "BALL_STOP", "DEFENSE_DESTROYER_DOWN", "DEFENSE_DESTROYER_UP"};
-	private String[] argumentTypes = {CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE};
+	private String[] allCommands = {"DRIVE_SLOW", "DRIVE_FAST","ROTATE_TO", "WAIT", "STOP", "RESET_GYRO", "BALL_INTAKE_DOWN", "BALL_INTAKE_UP", "BALL_INTAKE_UP", "BALL_INTAKE_DOWN", "BALL_OUT", "BALL_STOP", "DEFENSE_DESTROYER_DOWN", "DEFENSE_DESTROYER_UP"};
+	private String[] argumentTypes = {CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE};
 	
 	private File routinesFolder = new File(System.getProperty("user.home") + "/Desktop/Autonomous/"); //folder with CSV routines
 	private File deleteBackupsFolder = new File(System.getProperty("user.home") + "/Desktop/Autonomous/Backup/"); // Folder to move to when deleted
@@ -105,6 +105,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	private JButton commandBallStopButton;
 	private JButton commandDefenseDownButton;
 	private JButton commandDefenseUpButton;
+	private JButton commandDriveFastButton;
 	
 	//Build the UI (done with eclipse windowbuilder)
 	public Manager(){
@@ -168,8 +169,11 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		commandsPanel.setLayout(new GridLayout(0, 1, 0, 0));
 		
 		//Drive command
-		commandDriveButton = new JButton("DRIVE");
-		commandsPanel.add(commandDriveButton);
+		commandDriveSlowButton = new JButton("DRIVE_SLOW");
+		commandsPanel.add(commandDriveSlowButton);
+		
+		commandDriveFastButton = new JButton("DRIVE_FAST");
+		commandsPanel.add(commandDriveFastButton);
 		
 		//Rotate command
 		commandRotateButton = new JButton("ROTATE_TO");
@@ -709,7 +713,8 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		refreshButton.addActionListener(this);
 		renameFileButton.addActionListener(this);
 		
-		commandDriveButton.addActionListener(this);
+		commandDriveSlowButton.addActionListener(this);
+		commandDriveFastButton.addActionListener(this);
 		commandRotateButton.addActionListener(this);
 		commandWaitButton.addActionListener(this);
 		commandStopButton.addActionListener(this);
@@ -955,12 +960,20 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 			new RenameRoutineDialog(this, ((String) fileSelector.getSelectedItem())); // Rename dialog
 			
-		}else if(src == commandDriveButton){ //If drive command
+		}else if(src == commandDriveSlowButton){ //If drive slow command
 			
-			//Add table row with drive command
+			//Add table row with drive slow command
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			
-			model.addRow(new String[]{"DRIVE", "6", "Inches"});
+			model.addRow(new String[]{"DRIVE_SLOW", "6", "Inches"});
+			table.clearSelection();
+			
+		}else if(src == commandDriveFastButton){ //If drive fast command
+			
+			//Add table row with drive fast command
+			DefaultTableModel model = (DefaultTableModel) table.getModel();
+			
+			model.addRow(new String[]{"DRIVE_FAST", "6", "Inches"});
 			table.clearSelection();
 			
 		}else if(src == commandRotateButton){ //If rotate command
