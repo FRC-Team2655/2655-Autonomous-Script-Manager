@@ -20,7 +20,7 @@ public class CSVCheckEngine {
 		
 		this.commands = commands;
 		this.argumentTypes = argumentTypes;
-		
+				
 	}
 	
 	public String checkFile(File file) throws IOException{
@@ -105,9 +105,12 @@ public class CSVCheckEngine {
 		
 		String shouldBe = argumentTypes[commandIndex];
 		
-		if(shouldBe.equals(ARGUMENT_TYPE_NONE) && argument.equals(""))
+		if(shouldBe.equals(ARGUMENT_TYPE_NONE) && (argument.equals("") || argument.equals(" "))){
+			
 			isArgument = true;
 		
+		}
+			
 		if(shouldBe.equals(ARGUMENT_TYPE_INTEGER)){
 			
 			try{

@@ -1000,7 +1000,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			table.clearSelection();
 			
-			model.addRow(new String[]{"STOP", "", "None"});
+			model.addRow(new String[]{"STOP", " ", "None"});
 			
 		}else if(src == commandResetgyroButton){ //If reset gyro command
 			
@@ -1008,7 +1008,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			table.clearSelection();
 			
-			model.addRow(new String[]{"RESET_GYRO", "", "None"});
+			model.addRow(new String[]{"RESET_GYRO", " ", "None"});
 			
 		}else if(src == commandBallDownButton){ //If ball down command
 			
@@ -1016,7 +1016,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			table.clearSelection();
 			
-			model.addRow(new String[]{"BALL_INTAKE_DOWN", "", "None"});
+			model.addRow(new String[]{"BALL_INTAKE_DOWN", " ", "None"});
 			
 		}else if(src == commandBallUpButton){ //If ball up
 			
@@ -1024,7 +1024,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			table.clearSelection();
 			
-			model.addRow(new String[]{"BALL_INTAKE_UP", "", "None"});
+			model.addRow(new String[]{"BALL_INTAKE_UP", " ", "None"});
 			
 		}else if(src == commandBallOutButton){ //If ball out
 			
@@ -1032,7 +1032,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			table.clearSelection();
 			
-			model.addRow(new String[]{"BALL_OUT", "", "None"});
+			model.addRow(new String[]{"BALL_OUT", " ", "None"});
 			
 		}else if(src == commandBallStopButton){ //If ball stop
 			
@@ -1040,7 +1040,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			table.clearSelection();
 			
-			model.addRow(new String[]{"BALL_STOP", "", "None"});
+			model.addRow(new String[]{"BALL_STOP", " ", "None"});
 			
 		}
 		
@@ -1050,7 +1050,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			table.clearSelection();
 			
-			model.addRow(new String[]{"DEFENSE_DESTROYER_DOWN", "", "None"});
+			model.addRow(new String[]{"DEFENSE_DESTROYER_DOWN", " ", "None"});
 			
 		}else if(src == commandDefenseUpButton){ //If defense up
 			
@@ -1058,7 +1058,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			table.clearSelection();
 			
-			model.addRow(new String[]{"DEFENSE_DESTROYER_UP", "", "None"});
+			model.addRow(new String[]{"DEFENSE_DESTROYER_UP", " ", "None"});
 			
 		}
 		
@@ -1225,7 +1225,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		
 		}catch(Exception e){
 			
-			
+			e.printStackTrace();
 			
 		}
 		
@@ -1273,7 +1273,15 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 						
 						for(int column = 0; column < model.getColumnCount(); column++){
 							
-							writer.write(model.getValueAt(row, column).toString());
+							Object toWrite = model.getValueAt(row, column);
+							
+							if(toWrite == null || !(toWrite instanceof String)){
+								
+								toWrite = " ";
+								
+							}
+							
+							writer.write((String)toWrite);
 							
 							if(column != model.getColumnCount() - 1){
 								
@@ -1295,7 +1303,8 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 					
 				}catch(Exception e){
 					
-					
+					e.printStackTrace();
+					System.out.println(e.getSuppressed());
 					
 				}
 				
