@@ -333,12 +333,14 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	    model.addColumn("Command");
 	    model.addColumn("Argument");
 	    model.addColumn("Argument In:");
+	    model.addColumn("Comment");
 	    
 	    //Table style
 	    table.getTableHeader().setFont( new Font( "Arial" , Font.BOLD, 15 )); //Bold column headers
-	    table.getColumnModel().getColumn(0).setPreferredWidth(300); //width
-	    table.getColumnModel().getColumn(1).setPreferredWidth(300); //width
-	    table.getColumnModel().getColumn(2).setPreferredWidth(150); //width
+	    table.getColumnModel().getColumn(0).setPreferredWidth(250); //width
+	    table.getColumnModel().getColumn(1).setPreferredWidth(250); //width
+	    table.getColumnModel().getColumn(2).setPreferredWidth(100); //width
+	    table.getColumnModel().getColumn(2).setPreferredWidth(100); //width
 	    
 	    table.getTableHeader().setReorderingAllowed(false); //User cant drag columns
 	    table.getTableHeader().setResizingAllowed(false); //user cant resize columns
