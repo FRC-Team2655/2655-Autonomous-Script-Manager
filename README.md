@@ -2,9 +2,9 @@
 	<body>
 		<h1>About:</h1>
 		<p>This is an Autonomous script manager built in java to allow anyone to create autonomous routines for a robot. The LabVIEW code for the robot side is here:</p>
-		<a href="https://github.com/FRC-Team2655/2016-Beta-Autonomous-Scripting">https://github.com/FRC-Team2655/2016-Beta-Autonomous-Scripting</a>
+		<a href="https://github.com/FRC-Team2655/Flying-Platypi-2016-Robot-Code">https://github.com/FRC-Team2655/Flying-Platypi-2016-Robot-Code</a>
 		<p>The dashboard project is here:</p>
-		<a href="https://github.com/FRC-Team2655/2016-Beta-Dashboard">https://github.com/FRC-Team2655/2016-Beta-Dashboard</a>
+		<a href="https://github.com/FRC-Team2655/Flying-Platypi-2016-Dashboard-Code">https://github.com/FRC-Team2655/Flying-Platypi-2016-Dashboard-Code</a>
 		<h1>Running:</h1>
 		<h3>Download and run from zip file(Easy Recommended):</h3>
 		<a href="https://drive.google.com/open?id=0B0zdjaI9neLbeFZKa29id1ZGNVU">Built zip and exe (may not be newest)</a>
