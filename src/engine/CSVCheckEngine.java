@@ -98,7 +98,6 @@ public class CSVCheckEngine {
 		
 	}
 	
-	//check if argument matched the type it should (Run after check command)
 	private boolean checkArgument(String argument){
 		
 		boolean isArgument = false;

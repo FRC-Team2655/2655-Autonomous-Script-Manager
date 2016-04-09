@@ -22,7 +22,7 @@ public class GyroSim extends JDialog {
 
 	public GyroSim(int windowHeight, JFrame mainWindow) {
 		
-		currentGyroLabel = new JLabel("0°");
+		currentGyroLabel = new JLabel("0ï¿½");
 		currentGyroLabel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "Current Gyro Angle", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		currentGyroLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		currentGyroLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
@@ -49,7 +49,6 @@ public class GyroSim extends JDialog {
 		this.setLocation(mainWindow.getX() + mainWindow.getWidth(), mainWindow.getY());
 		this.setAlwaysOnTop(true);
 		this.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-		this.setVisible(true);
 		
 		drawGyroAnglePanel.setAngle(0);
 		drawGyroAnglePanel.reset(0);
@@ -59,7 +58,7 @@ public class GyroSim extends JDialog {
 	
 	public void setGyroAngle(int angle){
 		
-		currentGyroLabel.setText(String.valueOf(angle) + "°");
+		currentGyroLabel.setText(String.valueOf(angle) + "Â°");
 		drawGyroAnglePanel.setAngle(angle);
 		drawGyroAnglePanel.update();
 		

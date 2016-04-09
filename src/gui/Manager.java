@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import javax.imageio.ImageIO;
+import javax.swing.CellEditor;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -89,8 +90,8 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	
 	private static GyroSim gyroSim;
 	
-	private String[] allCommands = {"DRIVE_SLOW", "DRIVE_FAST","ROTATE_TO", "WAIT", "STOP", "RESET_GYRO", "BALL_INTAKE_DOWN", "BALL_INTAKE_UP", "BALL_INTAKE_UP", "BALL_INTAKE_DOWN", "BALL_OUT", "BALL_STOP", "DEFENSE_DESTROYER_DOWN", "DEFENSE_DESTROYER_UP"};
-	private String[] argumentTypes = {CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE};
+	private String[] allCommands = {"DRIVE_SLOW", "DRIVE_FAST","ROTATE_TO", "WAIT", "STOP", "RESET_GYRO", "BALL_INTAKE_DOWN", "BALL_INTAKE_UP", "BALL_INTAKE_UP", "BALL_INTAKE_DOWN", "BALL_OUT", "BALL_STOP", "DEFENSE_DESTROYER_DOWN", "DEFENSE_DESTROYER_UP", "CAMERA_ALIGN"};
+	private String[] argumentTypes = {CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_INTEGER, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE, CSVCheckEngine.ARGUMENT_TYPE_NONE};
 	
 	private File routinesFolder = new File(System.getProperty("user.home") + "/Desktop/Autonomous/"); //folder with CSV routines
 	private File deleteBackupsFolder = new File(System.getProperty("user.home") + "/Desktop/Autonomous/Backup/"); // Folder to move to when deleted
@@ -106,6 +107,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	private JButton commandDefenseDownButton;
 	private JButton commandDefenseUpButton;
 	private JButton commandDriveFastButton;
+	private JButton commandAlignButton;
 	
 	//Build the UI (done with eclipse windowbuilder)
 	public Manager(){
@@ -113,6 +115,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		//Use window listener to show a dialog before the frame is closed
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.addWindowListener(this);
+		this.setAlwaysOnTop(true);
 		
 		//add components
 		
@@ -209,6 +212,9 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		commandDefenseUpButton = new JButton("DEFENSE_DESTROYER_UP");
 		commandsPanel.add(commandDefenseUpButton);
 		
+		commandAlignButton = new JButton("CAMERA_ALIGN");
+		commandsPanel.add(commandAlignButton);
+		
 		//Panel for table to show CSV data
 		tablePanel = new JPanel();
 		tablePanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "Script", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -300,16 +306,33 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 	        }
 	        
 	    });
+		
+		if(fileSelector.getItemCount() == 0){
+			
+			File file = new File(routinesFolder.getAbsolutePath()+ "/DUMMY.csv");
+			
+			try{
+								
+				file.createNewFile();
+				
+				rescanFiles();
+				
+			
+			}catch(Exception ex){
+				
+				
+			}
+			
+		}
 								
 	}
 	
-	//Create columns and set properties
 	private void setupTable(){
 		
 		DefaultTableModel model = new DefaultTableModel(){
 			
 			private static final long serialVersionUID = 4835831320207780958L;
-			//Only argument is editable
+			
 			@Override
 			public boolean isCellEditable(int row, int column) {
 				
@@ -329,23 +352,21 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		
 		table.setModel(model);
 		
-		//add three columns
 	    model.addColumn("Command");
 	    model.addColumn("Argument");
 	    model.addColumn("Argument In:");
 	    model.addColumn("Comment");
 	    
-	    //Table style
-	    table.getTableHeader().setFont( new Font( "Arial" , Font.BOLD, 15 )); //Bold column headers
-	    table.getColumnModel().getColumn(0).setPreferredWidth(250); //width
-	    table.getColumnModel().getColumn(1).setPreferredWidth(250); //width
-	    table.getColumnModel().getColumn(2).setPreferredWidth(100); //width
-	    table.getColumnModel().getColumn(2).setPreferredWidth(100); //width
+	    table.getTableHeader().setFont( new Font( "Arial" , Font.BOLD, 15 ));
+	    table.getColumnModel().getColumn(0).setPreferredWidth(250);
+	    table.getColumnModel().getColumn(1).setPreferredWidth(250);
+	    table.getColumnModel().getColumn(2).setPreferredWidth(100);
+	    table.getColumnModel().getColumn(2).setPreferredWidth(100);
 	    
-	    table.getTableHeader().setReorderingAllowed(false); //User cant drag columns
-	    table.getTableHeader().setResizingAllowed(false); //user cant resize columns
+	    table.getTableHeader().setReorderingAllowed(false);
+	    table.getTableHeader().setResizingAllowed(false);
 	    
-	    table.setSelectionModel(new ForcedListSelectionModel()); //only select one row at a time
+	    table.setSelectionModel(new ForcedListSelectionModel());
 	    	    		
 	}
 	
@@ -580,6 +601,23 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 				
 			}
 			
+			if(fileSelector.getItemCount() == 0){
+				
+				File file = new File(routinesFolder.getAbsolutePath()+ "/DUMMY.csv");
+				
+				try{
+									
+					file.createNewFile();
+					
+					rescanFiles();
+					
+				}catch(Exception ex){
+					
+					
+				}
+				
+			}
+			
 			//Reselect currentlySelected if it exists
 			for(int i = 0; i < fileSelector.getItemCount(); i++){
 				
@@ -727,6 +765,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		commandBallStopButton.addActionListener(this);
 		commandDefenseDownButton.addActionListener(this);
 		commandDefenseUpButton.addActionListener(this);
+		commandAlignButton.addActionListener(this);
 		
 		tableUpButton.addActionListener(this);
 		tableDownButton.addActionListener(this);
@@ -752,7 +791,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 		}
 		
 		Manager manager = new Manager(); //create the manager
-		
+				
 		try{	
 			
 			manager.setIconImage(ImageIO.read(new File("./img/icon.png"))); //Set the icon
@@ -902,13 +941,11 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 
 	public void windowDeiconified(WindowEvent arg0) {
 		
-		gyroSim.setVisible(true);
 		
 	}
 
 	public void windowIconified(WindowEvent arg0) {
 		
-		gyroSim.setVisible(false);
 		
 	}
 
@@ -1062,9 +1099,15 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 			model.addRow(new String[]{"DEFENSE_DESTROYER_UP", " ", "None"});
 			
-		}
-		
-		else if(src == tableUpButton){ //If up
+		}else if(src == commandAlignButton){ //If defense up
+			
+			//Add table row with defense up
+			DefaultTableModel model = (DefaultTableModel) table.getModel();
+			table.clearSelection();
+			
+			model.addRow(new String[]{"CAMERA_ALIGN", " ", "None"});
+			
+		}else if(src == tableUpButton){ //If up
 			
 			//Move row up
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
@@ -1161,7 +1204,13 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			
 			showHelp();
 			
-		}
+		}/*else if(src == btnSim){
+			
+			RobotSimulator sim = new RobotSimulator();
+			sim.setVisible(true);
+			sim.setAlwaysOnTop(true);
+			
+		}*/
 		
 	}
 	
@@ -1255,6 +1304,9 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 				
 				table.clearSelection();
 				table.getSelectionModel().clearSelection();
+				
+				CellEditor editor = table.getCellEditor();
+				editor.stopCellEditing();
 				
 				try{
 					
@@ -1366,7 +1418,7 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
 			dialog.getContentPane().setLayout(new BorderLayout());
 			dialog.getContentPane().add("Center", new JLabel("File is not accessible. Make sure driver station is not running."));
 			dialog.getContentPane().add("South", okBtn);
-			dialog.setAlwaysOnTop(true);
+			dialog.setAlwaysOnTop(false);
 			dialog.pack();
 			dialog.setTitle("File Error");
 			dialog.setLocationRelativeTo(null);
@@ -1404,29 +1456,48 @@ public class Manager extends JFrame implements WindowListener, ActionListener, I
         	   
     		   String newItem = (String) fileSelector.getSelectedItem();
     		   
-    		   if(!newItem.equals(lastFileSelected)){ //if it is not the same
+    		   if(newItem != null){
     			   
-    			   //Clear the table
-    			   DefaultTableModel model = (DefaultTableModel) table.getModel();
+    			   if(!newItem.equals(lastFileSelected)){ //if it is not the same
+        			   
+        			   //Clear the table
+        			   DefaultTableModel model = (DefaultTableModel) table.getModel();
+        			   
+        			   for (int i = model.getRowCount() - 1; i >= 0; i--) {
+        			   	
+        				   model.removeRow(i);
+        			    
+        			   }
+        			   
+        			   //load the data
+        			   loadFromCSV();
+        			   
+        			   //change last file
+        			   lastFileSelected = newItem;
+        			   
+        			   if(gyroSim != null){
+        				   
+        				   gyroSim.setAngleOffset(0);
+            			   gyroSim.setGyroAngle(0);
+        				   
+        			   }
+        			   
+        		   }
     			   
-    			   for (int i = model.getRowCount() - 1; i >= 0; i--) {
-    			   	
-    				   model.removeRow(i);
-    			    
-    			   }
+    		   }else{
     			   
-    			   //load the data
-    			   loadFromCSV();
-    			   
-    			   //change last file
-    			   lastFileSelected = newItem;
-    			   
-    			   if(gyroSim != null){
-    				   
-    				   gyroSim.setAngleOffset(0);
-        			   gyroSim.setGyroAngle(0);
-    				   
-    			   }
+    			   File file = new File(routinesFolder.getAbsolutePath()+ "/DUMMY.csv");
+    				
+    				try{
+    									
+    					file.createNewFile();
+    					
+    					rescanFiles();
+    					
+    				}catch(Exception ex){
+    					
+    					
+    				}
     			   
     		   }
     	          
